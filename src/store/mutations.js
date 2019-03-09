@@ -18,6 +18,7 @@ export const RESET_FILTERS = '__RESET_FILTERS__'
 export const SET_ALL_BIOBANKS = '__SET_ALL_BIOBANKS__'
 export const SET_COLLECTION_IDS = '__SET_COLLECTION_IDS__'
 export const SET_BIOBANK_REPORT = '__SET_BIOBANK_REPORT__'
+export const SET_ARROW_TABLE = '__SET_ARROW_TABLE__'
 
 export const MAP_QUERY_TO_STATE = '__MAP_QUERY_TO_STATE__'
 
@@ -102,6 +103,9 @@ export default {
   },
   [SET_ALL_BIOBANKS] (state, biobanks) {
     state.allBiobanks = biobanks.map(fixCollectionTree)
+  },
+  [SET_ARROW_TABLE] (state, {name, table}) {
+    state.arrow[name] = table
   },
   [SET_COLLECTION_IDS] (state, collectionIds) {
     state.collectionIds = collectionIds

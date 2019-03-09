@@ -54,5 +54,6 @@ export default {
   dataType: {
     filters: [],
     options: []
-  }
+  },
+  arrow: {}
 }

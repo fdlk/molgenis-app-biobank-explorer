@@ -20,6 +20,9 @@ module.exports = {
       },
       '/api': {
         target: 'http://localhost:8080'
+      },
+      '/data': {
+        target: 'http://localhost:3000'
       }
     },
 

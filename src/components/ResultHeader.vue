@@ -47,12 +47,13 @@
   import Negotiator from './negotiator/Negotiator'
   import ActiveFilterList from './filters/ActiveFilterList'
 
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapState } from 'vuex'
 
   export default {
     name: 'search-box',
     computed: {
-      ...mapGetters(['biobanks', 'loading', 'rsql'])
+      ...mapGetters(['biobanks', 'loading', 'rsql']),
+      ...mapState(['collectionIds'])
     },
     components: {
       ActiveFilterList,
