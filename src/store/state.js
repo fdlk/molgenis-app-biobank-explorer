@@ -14,8 +14,6 @@ export default {
   error: null,
   showCountryFacet: INITIAL_STATE.hasOwnProperty('showCountryFacet') ? INITIAL_STATE.showCountryFacet : true,
   preConfiguredCountyCode: INITIAL_STATE.preConfiguredCountyCode,
-  allBiobanks: undefined,
-  collectionIds: undefined,
   /* A single biobank object which is fetched by ID for showing the BiobankReportCard component */
   biobankReport: {
     data: {},
@@ -55,5 +53,5 @@ export default {
     filters: [],
     options: []
   },
-  arrow: {}
+  loading: true
 }

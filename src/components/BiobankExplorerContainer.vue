@@ -13,7 +13,7 @@
 
       <div class="row">
         <div class="col-md-12">
-          <biobank-cards-container></biobank-cards-container>
+          <collections></collections>
         </div>
       </div>
     </div>
@@ -27,38 +27,30 @@
 </style>
 
 <script>
-  import BiobankCardsContainer from './cards/BiobankCardsContainer'
+  import Collections from './cards/Collections'
   import FilterContainer from './filters/FilterContainer'
   import ResultHeader from './ResultHeader'
   import { mapGetters, mapActions } from 'vuex'
 
-  import { GET_ALL_BIOBANKS, GET_COLLECTION_IDENTIFIERS, GET_QUERY } from '../store/actions'
+  import { GET_QUERY } from '../store/actions'
 
   export default {
     name: 'biobank-explorer-container',
     components: {
-      BiobankCardsContainer,
       FilterContainer,
-      ResultHeader
+      ResultHeader,
+      Collections
     },
     computed: {
       ...mapGetters(['rsql'])
     },
-    watch: {
-      rsql () {
-        this.getBiobankIdentifiers()
-      }
-    },
     methods: {
       ...mapActions({
-        getAllBiobanks: GET_ALL_BIOBANKS,
-        getBiobankIdentifiers: GET_COLLECTION_IDENTIFIERS,
         getQuery: GET_QUERY
       })
     },
     mounted () {
       this.getQuery()
-      this.getAllBiobanks()
     }
   }
 </script>

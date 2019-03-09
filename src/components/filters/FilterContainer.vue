@@ -42,8 +42,7 @@
     GET_TYPES_OPTIONS,
     GET_DATA_TYPE_OPTIONS,
     GET_COLLECTION_QUALITY_COLLECTIONS,
-    GET_BIOBANK_QUALITY_BIOBANKS,
-    GET_ARROW
+    GET_BIOBANK_QUALITY_BIOBANKS
   } from '../../store/actions'
   import { mapGetters, mapMutations } from 'vuex'
   import CheckboxFilters from './CheckboxFilters'
@@ -138,8 +137,6 @@
       this.$store.dispatch(GET_BIOBANK_QUALITY_OPTIONS)
       this.$store.dispatch(GET_TYPES_OPTIONS)
       this.$store.dispatch(GET_DATA_TYPE_OPTIONS)
-      this.$store.dispatch(GET_ARROW, 'eu_bbmri_eric_collections#4dc023e6')
-      this.$store.dispatch(GET_ARROW, 'eu_bbmri_eric_collecti#4dc023e6_materials')
     },
     components: {StringFilter, CheckboxFilters, DiagnosisAvailableFilters}
   }

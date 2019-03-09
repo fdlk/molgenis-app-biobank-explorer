@@ -2,7 +2,7 @@
   <div class="search-box-container">
     <div class="row">
       <div class="col-md-12">
-        <negotiator :disabled="!rsql.length || !biobanks.length"></negotiator>
+        <negotiator :disabled="!rsql.length || !collections.length"></negotiator>
       </div>
     </div>
 
@@ -16,7 +16,7 @@
       <div class="col-md-12">
         <div class="biobank-number-report-container">
           <small class="biobank-number-report">
-            <i>{{biobanks.length}} biobanks found</i>
+            <i>{{collections.length}} collections found</i>
           </small>
         </div>
       </div>
@@ -52,8 +52,8 @@
   export default {
     name: 'search-box',
     computed: {
-      ...mapGetters(['biobanks', 'loading', 'rsql']),
-      ...mapState(['collectionIds'])
+      ...mapGetters(['rsql', 'collections']),
+      ...mapState(['loading'])
     },
     components: {
       ActiveFilterList,

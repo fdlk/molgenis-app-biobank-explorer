@@ -1,6 +1,7 @@
 import { getUniqueIdArray } from '../utils'
 import { fixCollectionTree } from './helpers'
 
+export const SET_LOADING = '__SET_LOADING__'
 export const SET_COUNTRIES = '__SET_COUNTRIES__'
 export const SET_MATERIALS = '__SET_MATERIALS__'
 export const SET_COLLECTION_QUALITY = '__SET_COLLECTION_QUALITY__'
@@ -18,7 +19,6 @@ export const RESET_FILTERS = '__RESET_FILTERS__'
 export const SET_ALL_BIOBANKS = '__SET_ALL_BIOBANKS__'
 export const SET_COLLECTION_IDS = '__SET_COLLECTION_IDS__'
 export const SET_BIOBANK_REPORT = '__SET_BIOBANK_REPORT__'
-export const SET_ARROW_TABLE = '__SET_ARROW_TABLE__'
 
 export const MAP_QUERY_TO_STATE = '__MAP_QUERY_TO_STATE__'
 
@@ -43,6 +43,9 @@ const hasFilterWithoutMatches = (filter, matches) => {
 }
 
 export default {
+  [SET_LOADING] (state, loading) {
+    state.loading = loading
+  },
   /**
    * Update the options for the different filters available in the biobank explorer
    */
@@ -103,9 +106,6 @@ export default {
   },
   [SET_ALL_BIOBANKS] (state, biobanks) {
     state.allBiobanks = biobanks.map(fixCollectionTree)
-  },
-  [SET_ARROW_TABLE] (state, {name, table}) {
-    state.arrow[name] = table
   },
   [SET_COLLECTION_IDS] (state, collectionIds) {
     state.collectionIds = collectionIds
