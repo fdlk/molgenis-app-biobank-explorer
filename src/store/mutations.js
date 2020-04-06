@@ -1,5 +1,6 @@
 import { getUniqueIdArray } from '../utils'
 import { fixCollectionTree } from './helpers'
+import Vue from 'vue'
 
 export const SET_COUNTRIES = '__SET_COUNTRIES__'
 export const SET_MATERIALS = '__SET_MATERIALS__'
@@ -16,7 +17,8 @@ export const SET_COVID_19 = '__SET_COVID_19__'
 export const UPDATE_FILTER = '__UPDATE_FILTER__'
 export const RESET_FILTERS = '__RESET_FILTERS__'
 
-export const SET_ALL_BIOBANKS = '__SET_ALL_BIOBANKS__'
+export const SET_BIOBANKS = '__SET_BIOBANKS__'
+export const SET_BIOBANK_IDS = '__SET_BIOBANK_IDS__'
 export const SET_COLLECTION_IDS = '__SET_COLLECTION_IDS__'
 export const SET_BIOBANK_REPORT = '__SET_BIOBANK_REPORT__'
 export const SET_COLLECTION_REPORT = '__SET_COLLECTION_REPORT__'
@@ -111,8 +113,13 @@ export default {
     state.dataType.filters = []
     state.covid19.filters = []
   },
-  [SET_ALL_BIOBANKS] (state, biobanks) {
-    state.allBiobanks = biobanks.map(fixCollectionTree)
+  [SET_BIOBANKS] (state, biobanks) {
+    biobanks.forEach(biobank => {
+      Vue.set(state.biobanks, biobank.id, fixCollectionTree(biobank))
+    })
+  },
+  [SET_BIOBANK_IDS] (state, biobankIds) {
+    state.biobankIds = biobankIds
   },
   [SET_COLLECTION_IDS] (state, collectionIds) {
     state.collectionIds = collectionIds

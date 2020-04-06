@@ -1,18 +1,29 @@
-import { createRSQLQuery, filterCollectionTree } from './helpers'
-import _ from 'lodash'
+import { createRSQLQuery, createBiobankRSQLQuery, filterCollectionTree } from './helpers'
 
 export default {
-  loading: state => !(state.allBiobanks && state.collectionIds),
-  biobanks: (state, getters) => getters.loading ? [] : _.sortBy(
-    state.allBiobanks
-      .map(biobank => ({...biobank}))
-      .map((biobank) => {
-        biobank.collections = filterCollectionTree(state.collectionIds, biobank.collections)
-        return biobank
-      })
-      .filter(biobank => biobank.collections.length > 0),
-    'name'),
+  loading: ({collectionIds, biobankIds}) => !(biobankIds && collectionIds),
+  biobanks: ({collectionIds, biobankIds, biobanks}, {loading}) =>
+    loading
+      ? []
+      : collectionIds
+        // biobank IDs present in collectionIds
+        .map(({biobankId}) => biobankId)
+        // also present in biobankIds
+        .filter(biobankId => biobankIds.includes(biobankId))
+        // first occurrence of ID only
+        .filter((value, index, self) => self.indexOf(value) === index)
+        .map(biobankId => {
+          if (!biobanks.hasOwnProperty(biobankId)) {
+            return biobankId
+          }
+          const biobank = biobanks[biobankId]
+          return {
+            ...biobank,
+            collections: filterCollectionTree(collectionIds.map(it => it.collectionId), biobank.collections)
+          }
+        }),
   rsql: createRSQLQuery,
+  biobankRsql: createBiobankRSQLQuery,
   getCountryOptions: state => state.country.options,
   getMaterialOptions: state => state.materials.options,
   getCollectionQualityOptions: state => state.collection_quality.options,

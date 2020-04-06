@@ -4,8 +4,8 @@
       <b-pagination v-if="biobanks.length > pageSize" size="md" align="center"
                     :total-rows="biobanks.length" v-model="currentPage" :per-page="pageSize"></b-pagination>
       <biobank-card
-        v-for="biobank in biobanks.slice(pageSize * (currentPage-1), pageSize * currentPage)"
-        :key="biobank.id"
+        v-for="biobank in biobanksShown"
+        :key="biobank.id || biobank"
         :biobank="biobank"
         :initCollapsed="!isAnyFilterActive">
       </biobank-card>
@@ -38,7 +38,8 @@
 
 <script>
   import BiobankCard from './BiobankCard'
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapActions } from 'vuex'
+  import { GET_BIOBANKS } from '@/store/actions'
 
   export default {
     name: 'biobank-cards-container',
@@ -52,14 +53,34 @@
       ...mapGetters(['biobanks', 'loading', 'getActiveFilters']),
       isAnyFilterActive () {
         return Object.keys(this.getActiveFilters).length > 0
+      },
+      biobanksShown () {
+        return this.loading ? [] : this.biobanks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
+      },
+      biobankIds () {
+        return this.loading ? [] : this.biobanks.map(it => it.id || it)
+      },
+      biobankIdsToFetch () {
+        return this.biobanksShown.filter(it => typeof it === 'string')
       }
+    },
+    methods: {
+      ...mapActions({ getBiobanks: GET_BIOBANKS })
     },
     components: {
       BiobankCard
     },
     watch: {
-      biobanks () {
-        this.currentPage = 1
+      biobankIds (newValue, oldValue) {
+        if (newValue.length !== oldValue.length ||
+          !newValue.every((element, index) => element === oldValue[index])) {
+          this.currentPage = 1
+        }
+      },
+      biobankIdsToFetch (value) {
+        if (value.length) {
+          this.getBiobanks(value)
+        }
       }
     }
   }

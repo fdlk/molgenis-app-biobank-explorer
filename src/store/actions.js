@@ -3,7 +3,7 @@ import helpers from './helpers'
 import utils from '../utils'
 import 'array-flat-polyfill'
 import {
-  SET_ALL_BIOBANKS,
+  SET_BIOBANKS,
   SET_COLLECTION_IDS,
   SET_BIOBANK_REPORT,
   SET_COLLECTION_REPORT,
@@ -22,9 +22,10 @@ import {
   SET_BIOBANK_QUALITY_BIOBANKS,
   SET_NETWORK_COLLECTIONS,
   SET_NETWORK_BIOBANKS,
-  SET_COVID_19
+  SET_COVID_19,
+  SET_BIOBANK_IDS
 } from './mutations'
-import { encodeRsqlValue } from '@molgenis/rsql'
+import { encodeRsqlValue, transformToRSQL } from '@molgenis/rsql'
 
 /* ACTION CONSTANTS */
 export const GET_COUNTRY_OPTIONS = '__GET_COUNTRY_OPTIONS__'
@@ -37,8 +38,9 @@ export const GET_COVID_19_OPTIONS = '__GET_COVID_19_OPTIONS__'
 export const QUERY_DIAGNOSIS_AVAILABLE_OPTIONS = '__QUERY_DIAGNOSIS_AVAILABLE_OPTIONS__'
 export const GET_COLLECTION_QUALITY_COLLECTIONS = '__GET_COLLECTION_QUALITY_COLLECTIONS__'
 export const GET_BIOBANK_QUALITY_BIOBANKS = '__GET_BIOBANK_QUALITY_BIOBANKS__'
-export const GET_ALL_BIOBANKS = '__GET_ALL_BIOBANKS__'
-export const GET_COLLECTION_IDENTIFIERS = '__GET_COLLECTION_IDENTIFIERS__'
+export const GET_BIOBANKS = '__GET_BIOBANKS__'
+export const GET_COLLECTION_IDS = '__GET_COLLECTION_IDS__'
+export const GET_BIOBANK_IDS = '__GET_BIOBANK_IDS__'
 export const GET_QUERY = '__GET_QUERY__'
 export const GET_BIOBANK_REPORT = '__GET_BIOBANK_REPORT__'
 export const GET_COLLECTION_REPORT = '__GET_COLLECTION_REPORT__'
@@ -177,38 +179,50 @@ export default {
       }
     }
   },
-  /**
-   * Retrieve biobanks with expanded collections based on a list of biobank ids
-   *
-   * @param commit
-   * @param biobanks
+  /*
+   * Retrieves biobanks and stores them in the cache
    */
-  [GET_ALL_BIOBANKS] ({commit, dispatch, state}) {
-    if (!state.allBiobanks) {
-      api.get(`${BIOBANK_API_PATH}?num=10000&attrs=${COLLECTION_ATTRIBUTE_SELECTOR},*`)
-        .then(response => {
-          commit(SET_ALL_BIOBANKS, response.items)
-          dispatch(GET_COLLECTION_IDENTIFIERS)
-        }, error => {
-          commit(SET_ERROR, error)
-        })
-    }
+  [GET_BIOBANKS] ({commit}, biobankIds) {
+    const q = encodeRsqlValue(transformToRSQL({selector: 'id', comparison: '=in=', arguments: biobankIds}))
+    api.get(`${BIOBANK_API_PATH}?num=10000&attrs=${COLLECTION_ATTRIBUTE_SELECTOR},*&q=${q}`)
+      .then(response => {
+        commit(SET_BIOBANKS, response.items)
+      }, error => {
+        commit(SET_ERROR, error)
+      })
   },
-  /**
-   * Retrieve biobank identifiers for rsql value
+  /*
+   * Retrieves all collection identifiers matching the collection filters, and their biobanks
    */
-  [GET_COLLECTION_IDENTIFIERS] ({state, commit, getters}) {
-    if (!getters.rsql.length) {
-      commit(SET_COLLECTION_IDS, state.allBiobanks.flatMap(biobank => biobank.collections.map(collection => collection.id)))
-    } else {
-      commit(SET_COLLECTION_IDS, undefined)
-      api.get(`${COLLECTION_API_PATH}?num=10000&attrs=~id&q=${encodeRsqlValue(getters.rsql)}`)
-        .then(response => {
-          commit(SET_COLLECTION_IDS, response.items.map(item => item.id))
-        }, error => {
-          commit(SET_ERROR, error)
-        })
+  [GET_COLLECTION_IDS] ({commit, getters}) {
+    commit(SET_COLLECTION_IDS, undefined)
+    let url = '/api/data/eu_bbmri_eric_collections?filter=id,biobank&size=10000'
+    if (getters.rsql) {
+      url = `${url}&q=${encodeRsqlValue(getters.rsql)}`
     }
+    api.get(url)
+      .then(response => {
+        const collectionIds = response.items.map(item => ({
+          collectionId: item.data.id,
+          biobankId: helpers.getBiobankId(item.data.biobank.links.self)
+        }))
+        commit(SET_COLLECTION_IDS, collectionIds)
+      }, error => {
+        commit(SET_ERROR, error)
+      })
+  },
+  [GET_BIOBANK_IDS] ({commit, getters}) {
+    commit(SET_BIOBANK_IDS, undefined)
+    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000'
+    if (getters.biobankRsql) {
+      url = `${url}&q=${encodeRsqlValue(getters.biobankRsql)}`
+    }
+    api.get(url)
+      .then(response => {
+        commit(SET_BIOBANK_IDS, response.items.map(item => item.data.id))
+      }, error => {
+        commit(SET_ERROR, error)
+      })
   },
   [GET_BIOBANK_REPORT] ({commit, state}, biobankId) {
     if (state.allBiobanks) {

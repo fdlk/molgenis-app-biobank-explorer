@@ -34,7 +34,7 @@
   import Negotiator from './negotiator/Negotiator'
   import { mapGetters, mapActions } from 'vuex'
 
-  import { GET_ALL_BIOBANKS, GET_COLLECTION_IDENTIFIERS, GET_QUERY } from '../store/actions'
+  import { GET_COLLECTION_IDS, GET_BIOBANK_IDS, GET_QUERY } from '../store/actions'
 
   export default {
     name: 'biobank-explorer-container',
@@ -45,23 +45,27 @@
       Negotiator
     },
     computed: {
-      ...mapGetters(['rsql', 'loading', 'biobanks'])
+      ...mapGetters(['rsql', 'biobankRsql', 'loading', 'biobanks'])
     },
     watch: {
-      rsql () {
-        this.getBiobankIdentifiers()
+      rsql: {
+        immediate: true,
+        handler: 'getCollectionIds'
+      },
+      biobankRsql: {
+        immediate: true,
+        handler: 'getBiobankIds'
       }
     },
     methods: {
       ...mapActions({
-        getAllBiobanks: GET_ALL_BIOBANKS,
-        getBiobankIdentifiers: GET_COLLECTION_IDENTIFIERS,
+        getCollectionIds: GET_COLLECTION_IDS,
+        getBiobankIds: GET_BIOBANK_IDS,
         getQuery: GET_QUERY
       })
     },
     mounted () {
       this.getQuery()
-      this.getAllBiobanks()
     }
   }
 </script>

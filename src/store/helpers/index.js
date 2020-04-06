@@ -18,15 +18,29 @@ export const createRSQLQuery = (state) => transformToRSQL({
     createInQuery('data_categories', state.dataType.filters),
     createInQuery('diagnosis_available', state.diagnosis_available.filters.map(filter => filter.id)),
     createInQuery('id', state.collection_quality.collections),
-    createInQuery('biobank', state.biobank_quality.biobanks),
-    createInQuery('biobank.covid19biobank', state.covid19.filters),
     state.search ? [{
       operator: 'OR',
-      operands: ['name', 'id', 'acronym', 'biobank.name', 'biobank.id', 'biobank.acronym']
+      operands: ['name', 'id', 'acronym']
         .map(attr => ({selector: attr, comparison: '=q=', arguments: state.search}))
     }] : []
   ])
 })
+
+export const createBiobankRSQLQuery = (state) => transformToRSQL({
+  operator: 'AND',
+  operands: flatten([
+    createInQuery('id', state.biobank_quality.biobanks),
+    createInQuery('covid19biobank', state.covid19.filters),
+    state.search ? [{
+      operator: 'OR',
+      operands: ['name', 'id', 'acronym']
+        .map(attr => ({selector: attr, comparison: '=q=', arguments: state.search}))
+    }] : []
+  ])
+})
+
+const BIOBANK_ID_REGEX = /api\/data\/eu_bbmri_eric_biobanks\/([^/]+)$/
+export const getBiobankId = (link) => link.match(BIOBANK_ID_REGEX)[1]
 
 export const CODE_REGEX = /^([A-Z]|[XVI]+)(\d{0,2}(-([A-Z]\d{0,2})?|\.\d{0,3})?)?$/i
 
@@ -146,5 +160,6 @@ export default {
   getNegotiatorQueryObjects,
   setLocationHref,
   getLocationHref,
+  getBiobankId,
   CODE_REGEX
 }
